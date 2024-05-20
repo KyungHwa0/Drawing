@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import com.wack.drawing.databinding.ActivityMainBinding
 import com.wack.drawing.databinding.DialogBrushSizeBinding
 
@@ -12,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var drawingView: DrawingView? = null
+    private var mImageButtonCurrentPaint: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,9 +22,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         drawingView = binding.drawingView
+        val ibBrush = binding.ibBrush
+        val linearLayoutPaintColors = binding.llPaintColors
 
-        with(binding) {
-            ibBrush.setOnClickListener { showBrushSizeSelectDialog() }
+        mImageButtonCurrentPaint = linearLayoutPaintColors.getChildAt(3) as ImageButton
+        mImageButtonCurrentPaint?.setImageDrawable(
+            ContextCompat.getDrawable(
+                this,
+                R.drawable.pallet_pressed
+            )
+        )
+
+        ibBrush.setOnClickListener {
+            showBrushSizeSelectDialog()
         }
 
         drawingView?.setSizeForBrush(20.toFloat())
