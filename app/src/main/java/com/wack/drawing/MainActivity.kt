@@ -60,4 +60,22 @@ class MainActivity : AppCompatActivity() {
         drawingView?.setSizeForBrush(size)
         dialog.dismiss()
     }
+
+    fun paintClicked(view: View) {
+        if (view !== mImageButtonCurrentPaint) {
+            val imageButton = view as ImageButton
+            // 이 태그는 색상을 교체 할 때 사용
+            val colorTag = imageButton.tag.toString()
+            // 태그에 따라 색상을  설정
+            drawingView?.setColor(colorTag)
+            imageButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.pallet_pressed))
+            mImageButtonCurrentPaint?.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.pallet_normal
+                )
+            )
+            mImageButtonCurrentPaint = view
+        }
+    }
 }
