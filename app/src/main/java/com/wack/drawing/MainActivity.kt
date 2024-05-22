@@ -64,18 +64,29 @@ class MainActivity : AppCompatActivity() {
     fun paintClicked(view: View) {
         if (view !== mImageButtonCurrentPaint) {
             val imageButton = view as ImageButton
-            // 이 태그는 색상을 교체 할 때 사용
             val colorTag = imageButton.tag.toString()
-            // 태그에 따라 색상을  설정
+
+            // drawingView 색상 설정
             drawingView?.setColor(colorTag)
-            imageButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.pallet_pressed))
+
+            // 현재 이미지 버튼의 배경을 선택된 배경으로 변경
+            imageButton.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.pallet_pressed
+                )
+            )
+
+            // 이전 이미지 버튼의 배경을 원래대로 변경
             mImageButtonCurrentPaint?.setImageDrawable(
                 ContextCompat.getDrawable(
                     this,
                     R.drawable.pallet_normal
                 )
             )
-            mImageButtonCurrentPaint = view
+
+            // mImageButtonCurrentPaint 업데이트
+            mImageButtonCurrentPaint = imageButton
         }
     }
 }
