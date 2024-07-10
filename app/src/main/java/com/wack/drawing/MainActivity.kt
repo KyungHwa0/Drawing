@@ -3,10 +3,14 @@ package com.wack.drawing
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,28 +26,25 @@ class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
 
-    val requestPermission: ActivityResultLauncher<Array<String>> =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                val perMissionName = it.key
-                val isGranted = it.value
-
-                if (isGranted) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "권한 부여",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    if (perMissionName == Manifest.permission.READ_EXTERNAL_STORAGE)
-                        Toast.makeText(
-                            this@MainActivity,
-                            "권한 취소",
-                            Toast.LENGTH_LONG
-                        ).show()
-                }
+    private  val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->
+                if (result.resultCode == RESULT_OK && result.data != null) {
+                    val imageBackground = binding.ivBackground
+                    imageBackground.setImageURI(result.data?.data)
             }
         }
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val isReadGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
+        val isWriteGranted = permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: false
+
+        if (isReadGranted && isWriteGranted) {
+            openGallery()
+        } else {
+            Toast.makeText(this@MainActivity, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,16 +91,12 @@ class MainActivity : AppCompatActivity() {
         brushDialog.show()
     }
 
-    private fun requestStoragePermission(){
-        if (
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-        ){
-            showRationaleDialog("Drawing App","외부 저장소 접근")
-        }
-        else {
-            requestPermission.launch(
+    private fun requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            openGallery()
+        } else {
+            requestPermissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -108,18 +105,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showRationaleDialog(
-        title: String,
-        message: String,
-    ) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-        builder.create().show()
+    private fun openGallery() {
+        val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        openGalleryLauncher.launch(pickIntent)
     }
+
+//    private fun showRationaleDialog(
+//        title: String,
+//        message: String,
+//    ) {
+//        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+//        builder.setTitle(title)
+//            .setMessage(message)
+//            .setPositiveButton("Cancel") { dialog, _ ->
+//                dialog.dismiss()
+//            }
+//        builder.create().show()
+//    }
 
 
     private fun setBrushSizeAndDismiss(size: Float, dialog: Dialog) {
