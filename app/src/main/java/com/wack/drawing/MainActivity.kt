@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         if (
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
+                Manifest.permission.READ_MEDIA_IMAGES)
         ){
             //권한 요청에 대한 이유 다이얼로그
             showRationaleDialog("Kids Drawing App","이 앱은 외부 저장소에 권한이 필요합니다.")
@@ -121,10 +121,7 @@ class MainActivity : AppCompatActivity() {
         else {
             // 권한 요청
             requestPermission.launch(
-                arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
+                arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
             )
         }
 
